@@ -1,2 +1,3 @@
 # ArkanoidGB
-Arkanoid for the Gameboy
+Arkanoid clone for the Game boy, written in assembly
+uses RGBDS
