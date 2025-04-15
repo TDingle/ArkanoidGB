@@ -45,14 +45,16 @@ CopyTilemap:
 
     ; Turn the LCD on
     ld a, LCDCF_ON | LCDCF_BGON
-    ld [rBGP], a
+    ld [rLCDC], a
 
-    
+    ; During the first (blank) frame, initialize display registers
+    ld a, %11100100
+    ld [rBGP], a
 
 Done:
     jp Done
 
-    Tiles:
+Tiles:
 	dw `33333333
 	dw `33333333
 	dw `33333333
