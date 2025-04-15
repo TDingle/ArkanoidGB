@@ -85,6 +85,10 @@ CopyPaddle:
 	ld a, %11100100
 	ld [rOBP0], a
 
+	; Initialize global variables
+	ld a, 0
+	ld [wFrameCounter], a
+
 Main:
     ; Wait until it's not VBlank
 	ld a, [rLY]
@@ -94,6 +98,16 @@ WaitVBlank2:
 	ld a, [rLY]
 	cp 144
 	jp c, WaitVBlank2
+
+	ld a, [wFrameCounter]
+	inc a
+	ld [wFrameCounter], a
+	cp a, 15 ; Every 15 frames (1/4 of a second), run the following code
+	jp nz, Main
+
+	; Reset the frame counter to 0
+	ld a, 0
+	ld [wFrameCounter], a
 
 	; Move the paddle one pixel to the right
 	ld a, [_OAMRAM + 1]
@@ -343,3 +357,6 @@ Paddle:
     dw `00000000
     dw `00000000
 PaddleEnd:
+
+SECTION "Counter", wram0
+wFrameCounter: db
