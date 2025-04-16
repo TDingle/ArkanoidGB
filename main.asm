@@ -165,6 +165,56 @@ Memcopy:
 	jp nz, Memcopy
 	ret
 
+; Convert a pixel position to a tilemap address
+; hl = $9800 + X + Y * 32
+; @param b: X
+; @param c: Y
+; @return hl: tile address
+GetTileByPixel:
+	;First, we need to divide by 8 to convert a pixel position to a tile position
+	; After this we want to multiply the Y position by 32
+	; These operations effectively cancel out so we only need to mask the Y value
+	ld a, c
+	and a, %11111000
+	ld l, a
+	ld h, 0
+	; Now we have the position * 8 in hl
+	add hl, hl ; position * 16
+	add hl, hl ; position * 32
+	; Convert the X position to and offset
+	ld a, b
+	srl a ; a / 2
+	srl a ; a / 4
+	srl a ; a / 8
+	; Add the two offsets together
+	add a, l
+	ld l, a
+	adc a, h
+	sub a, l
+	ld h, a
+	; add the offset to the tilemaps base address, and we are done
+	ld bc, $9800
+	add hl, bc
+	ret 
+
+	; @param a: tile ID
+	; @return z: set if a is a wall
+IsWallTile:
+	cp a, $00
+	ret z
+	cp a, $01
+	ret z
+	cp a, $02
+	ret z
+	cp a, $04
+	ret z
+	cp a, $05
+	ret z
+	cp a, $06
+	ret z
+	cp a, $07
+	ret 
+
 	UpdateKeys:
 	; Poll half the controller
 	ld a, P1F_GET_BTN
