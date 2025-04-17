@@ -112,6 +112,65 @@ WaitVBlank2:
 	add a, b
 	ld [_OAMRAM + 4], a
 
+BounceOnTop:
+	; Remember to offset the OAM position!
+	; (8, 16) in OAM coordinates is (0, 0) on the screen
+	ld a, [_OAMRAM + 4]
+	sub a, 16 + 1
+	ld c, a
+	ld a, [_OAMRAM + 5]
+	sub a, 8
+	ld b, a
+	call GetTileByPixel ; returns the tile address in hl
+	ld a, [hl]
+	call IsWallTile
+	jp nz, BounceOnRight
+	ld a, 1
+	ld [wBallMomentumY], a
+	
+BounceOnRight:
+	ld a, [_OAMRAM + 4]
+	sub a, 16
+	ld c, a
+	ld a, [_OAMRAM + 5]
+	sub a, 8 - 1
+	ld b, a
+	call GetTileByPixel
+	ld a, [hl]
+	call IsWallTile
+	jp nz, BounceOnLeft
+	ld a, -1
+	ld [wBallMomentumX], a
+
+BounceOnLeft:
+	ld a, [_OAMRAM + 4]
+	sub a, 16
+	ld c, a
+	ld a, [_OAMRAM + 5]
+	sub a, 8 + 1
+	ld b, a
+	call GetTileByPixel
+	ld a, [hl]
+	call IsWallTile
+	jp nz, BounceOnBottom
+	ld a, 1
+	ld [wBallMomentumX], a
+
+BounceOnBottom:
+	ld a, [_OAMRAM + 4]
+    sub a, 16 - 1
+    ld c, a
+    ld a, [_OAMRAM + 5]
+    sub a, 8
+    ld b, a
+    call GetTileByPixel
+    ld a, [hl]
+    call IsWallTile
+    jp nz, BounceDone
+    ld a, -1
+    ld [wBallMomentumY], a
+
+BounceDone:
 	; Check the current keys every fram and move left or right
 	call UpdateKeys
 
@@ -164,6 +223,7 @@ Memcopy:
 	or a, c
 	jp nz, Memcopy
 	ret
+
 
 ; Convert a pixel position to a tilemap address
 ; hl = $9800 + X + Y * 32
