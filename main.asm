@@ -171,6 +171,33 @@ BounceOnBottom:
     ld [wBallMomentumY], a
 
 BounceDone:
+
+	; First, check if the ball is low enough to bounce off the paddle
+
+	ld a, [_OAMRAM] ; Paddle Y position
+	ld b, a
+	ld a, [_OAMRAM + 4] ; Ball Y position
+	cp a, b
+	jp nz, PaddleBounceDone ; If the ball isnt at the same Y lvl as the Paddle it cant Bounce
+
+	; Now compare the X positions to see of they are touching
+
+	ld a, [_OAMRAM + 5] ; Ball X position
+	ld b, a
+	ld a, [_OAMRAM + 1] ; Paddle X position
+	sub a, 8
+	cp a, b
+	jp nc, PaddleBounceDone
+	add a, 8 + 16 ; 8 to undo, 16 as the width
+	cp a, b
+	jp c, PaddleBounceDone
+
+	ld a, -1
+	ld [wBallMomentumY], a
+
+PaddleBounceDone:
+
+
 	; Check the current keys every fram and move left or right
 	call UpdateKeys
 
