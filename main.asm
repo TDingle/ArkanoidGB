@@ -177,6 +177,7 @@ BounceDone:
 	ld a, [_OAMRAM] ; Paddle Y position
 	ld b, a
 	ld a, [_OAMRAM + 4] ; Ball Y position
+	add a, 7
 	cp a, b
 	jp nz, PaddleBounceDone ; If the ball isnt at the same Y lvl as the Paddle it cant Bounce
 
