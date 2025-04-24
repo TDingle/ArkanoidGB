@@ -130,7 +130,7 @@ BounceOnTop:
 	
 BounceOnRight:
 	ld a, [_OAMRAM + 4]
-	sub a, 16
+	sub a, 16 
 	ld c, a
 	ld a, [_OAMRAM + 5]
 	sub a, 8 - 1
