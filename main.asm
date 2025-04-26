@@ -578,14 +578,14 @@ Paddle:
 PaddleEnd:
 
 Ball:
-    dw `00033000
-    dw `00322300
+    dw `00333300
     dw `03222230
+    dw `32112223
+    dw `32122223
+    dw `32222223
+    dw `32222223
     dw `03222230
-    dw `00322300
-    dw `00033000
-    dw `00000000
-    dw `00000000
+    dw `00333300
 BallEnd:
 
 SECTION "Counter", wram0
