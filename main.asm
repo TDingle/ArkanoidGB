@@ -1,5 +1,9 @@
 INCLUDE "hardware.inc"
 
+DEF BRICK_LEFT EQU $05 ; Tile index for given tile, look in tile map debugger
+DEF BRICK_RIGHT EQU $06
+DEF BLANK_TILE EQU $08
+
 SECTION "Header", ROM0[$100]
 
     jp EntryPoint
@@ -302,6 +306,18 @@ IsWallTile:
 	ret z
 	cp a, $07
 	ret 
+
+CheckAndHandleBrick:
+	ld a, [hl] ; points to the memory address in hl holding the tile the ball is over (obtained by GetTileByPixel)
+	cp a, BRICK_LEFT ; check to see of tiles are the same
+	jr nz, CheckAndHandleBrickRight
+	; Break a brick from the left side
+	ld [hl], BLANK_TILE 
+	inc hl ; sets hl to point at the tile to the right of the one we have cleared
+	ld [hl], BLANK_TILE
+CheckAndHandleBrickRight:
+	cp a, BRICK_RIGHT
+	
 
 	UpdateKeys:
 	; Poll half the controller
