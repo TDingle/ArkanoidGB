@@ -134,12 +134,18 @@ BounceOnTop:
 	ld [wBallMomentumY], a
 	
 BounceOnRight:
-	ld a, [_OAMRAM + 4]
-	sub a, 16 
-	ld c, a
-	ld a, [_OAMRAM + 5]
-	sub a, 8 - 1
-	ld b, a
+	ld a, [_OAMRAM + 4] ; Y position of the ball
+	sub a, 16 ; oam coord to screen coords
+	ld c, a ; puts the new on screen y position into register c
+
+	ld a, [_OAMRAM + 5] ; X position of the ball
+	
+	; sub a, 8 - 1; X coordinate conversion from OAM to on-screen
+	; line commented out above, when converting x on right ball bounces inside right wall
+
+	ld b, a ; puts the new on screen x position into register b
+
+	; We must load x and y into these registers because GetTilePixel takes them as parameters
 	call GetTileByPixel
 	ld a, [hl]
 	call IsWallTile
@@ -225,7 +231,7 @@ Left:
 	ld [_OAMRAM + 1], a
 	jp Main
 
-	;Check the right button
+;Check the right button
 CheckRight:
 	ld a, [wCurKeys]
 	and a, PADF_RIGHT
@@ -246,10 +252,10 @@ Right:
 	ld [wCurKeys], a
 	ld [wNewKeys], a
 	
-	; Copy bytes from one area to another
-	; @param de: Source
-	; @param hl: Destination
-	; @param bc: Length
+; Copy bytes from one area to another
+; @param de: Source
+; @param hl: Destination
+; @param bc: Length
 Memcopy:
 	ld a, [de]
 	ld [hli], a
@@ -293,8 +299,8 @@ GetTileByPixel:
 	add hl, bc
 	ret 
 
-	; @param a: tile ID
-	; @return z: set if a is a wall
+; @param a: tile ID
+; @return z: set if a is a wall
 IsWallTile:
 	cp a, $00
 	ret z
