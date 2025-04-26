@@ -129,6 +129,7 @@ BounceOnTop:
 	ld a, [hl]
 	call IsWallTile
 	jp nz, BounceOnRight
+	call CheckAndHandleBrick
 	ld a, 1
 	ld [wBallMomentumY], a
 	
@@ -143,6 +144,7 @@ BounceOnRight:
 	ld a, [hl]
 	call IsWallTile
 	jp nz, BounceOnLeft
+	call CheckAndHandleBrick
 	ld a, -1
 	ld [wBallMomentumX], a
 
@@ -157,6 +159,7 @@ BounceOnLeft:
 	ld a, [hl]
 	call IsWallTile
 	jp nz, BounceOnBottom
+	call CheckAndHandleBrick
 	ld a, 1
 	ld [wBallMomentumX], a
 
@@ -171,6 +174,7 @@ BounceOnBottom:
     ld a, [hl]
     call IsWallTile
     jp nz, BounceDone
+	call CheckAndHandleBrick
     ld a, -1
     ld [wBallMomentumY], a
 
@@ -313,13 +317,19 @@ CheckAndHandleBrick:
 	jr nz, CheckAndHandleBrickRight
 	; Break a brick from the left side
 	ld [hl], BLANK_TILE 
-	inc hl ; sets hl to point at the tile to the right of the one we have cleared
+	inc hl ; sets hl to point at the tile to the right
 	ld [hl], BLANK_TILE
+
 CheckAndHandleBrickRight:
 	cp a, BRICK_RIGHT
-	
+	ret nz
+	; Break a brick from the right side
+	ld [hl], BLANK_TILE
+	dec hl ; sets hl to point at the tile to the left
+	ld [hl], BLANK_TILE
+	ret
 
-	UpdateKeys:
+UpdateKeys:
 	; Poll half the controller
 	ld a, P1F_GET_BTN
 	call .onenibble
@@ -345,14 +355,14 @@ CheckAndHandleBrickRight:
 	ld [wCurKeys], a
 	ret
   
-  .onenibble
+.onenibble
 	ldh [rP1], a ; switch the key matrix
 	call .knownret ; burn 10 cycles calling a known ret
 	ldh a, [rP1] ; ignore value while waiting for the key matrix to settle
 	ldh a, [rP1]
 	ldh a, [rP1] ; this read counts
 	or a, $F0 ; A7-4 = 1; A3-0 = unpressed keys
-  .knownret
+.knownret
 	ret
 
 Tiles:
