@@ -185,7 +185,7 @@ BounceDone:
 	ld a, [_OAMRAM] ; Paddle Y position
 	ld b, a
 	ld a, [_OAMRAM + 4] ; Ball Y position
-	add a, 7
+	add a, 5
 	cp a, b
 	jp nz, PaddleBounceDone ; If the ball isnt at the same Y lvl as the Paddle it cant Bounce
 
@@ -406,22 +406,22 @@ Tiles:
 	dw `33322211
 	dw `33322211
 	dw `33322211;5
-	dw `22222222
-	dw `20000000
-	dw `20111111
-	dw `20111111
-	dw `20111111
-	dw `20111111
-	dw `22222222
-	dw `33333333;6
-	dw `22222223
+	dw `23333333
+	dw `31222222
+	dw `32000000
+	dw `32011111
+	dw `32011111
+	dw `32011111
+	dw `31222222
+	dw `23333333;6
+	dw `33333332
+	dw `22222213
 	dw `00000023
 	dw `11111123
 	dw `11111123
 	dw `11111123
-	dw `11111123
-	dw `22222223
-	dw `33333333;7
+	dw `22222213
+	dw `33333332;7
 	dw `11222333
 	dw `11222333
 	dw `11222333
@@ -578,14 +578,14 @@ Paddle:
 PaddleEnd:
 
 Ball:
-    dw `00333300
-    dw `03222230
-    dw `32112223
-    dw `32122223
-    dw `32222223
-    dw `32222223
-    dw `03222230
-    dw `00333300
+    dw `00233200
+    dw `02311320
+    dw `03101130
+    dw `03111130
+    dw `02311320
+    dw `00233200
+    dw `00000000
+    dw `00000000
 BallEnd:
 
 SECTION "Counter", wram0
