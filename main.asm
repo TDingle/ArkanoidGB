@@ -15,7 +15,16 @@ SECTION "Header", ROM0[$100]
 
 EntryPoint:
     ; Do not turn the LCD off outside of VBlank
+	;Turn on Audio
+	ld a, %01110111	;-LLL-RRR Channel Volume
+	ld [rAUDVOL], a
+	
+	ld a, %11111111
+	ld [rAUDTERM], a
+
+	; Do not turn the LCD off outside of VBlank
 WaitVBlank:
+	call PlayStartSound
     ld a, [rLY]
     cp 144
     jp c, WaitVBlank
@@ -211,7 +220,7 @@ BounceDone:
 	add a, 8 + 16 ; 8 to undo, 16 as the width
 	cp a, b
 	jp c, PaddleBounceDone
-
+	call PlayPaddleSound
 	ld a, -1
 	ld [wBallMomentumY], a
 
@@ -256,7 +265,54 @@ Right:
 	ld [wFrameCounter], a
 	ld [wCurKeys], a
 	ld [wNewKeys], a
+
+PlayBrickSound:
+	;Channel 2
+	ld a, %00110000		; %DDLLLLLL Wave Duty (tone) and Sound Length (higher = shorter)
+	ld [rAUD2LEN], a	; no effect unless c=1 in rAUD2HIGH 
 	
+	ld a, %11111100	;%VVVVDNNN C1 Volume / Direction 0=down / envelope number
+	ld [rAUD2ENV], a	; (fade speed - higher is slower)
+	
+	ld a, 64			;%LLLLLLLL pitch L
+	ld [rAUD2LOW], a
+	
+	ld a, %11000011 ; %IC---HHH C1 Initial / Counter 1=stop / pitch H
+	ld [rAUD2HIGH], a
+
+	ret
+PlayPaddleSound:
+	;Channel 2
+	ld a, %00100000		; Wave Duty (tone) and Sound Length (higher = shorter)
+	ld [rAUD2LEN], a	; no effect unless c=1 in rAUD2HIGH 
+	
+	ld a, %11111100	;%VVVVDNNN C1 Volume / Direction 0=down / envelope number
+	ld [rAUD2ENV], a	; (fade speed - higher is slower)
+	
+	ld a, 64			;%LLLLLLLL pitch L
+	ld [rAUD2LOW], a
+	
+	ld a, %11000100 ; %IC---HHH C1 Initial / Counter 1=stop / pitch H
+	ld [rAUD2HIGH], a
+	ret
+PlayStartSound:
+	;Channel 1
+	ld a, %01110011 ;Channel 1 sweep register
+	ld [rAUD1SWEEP], a ;-TTTDNNN T=time, D=Direction, N=numberof shifts
+
+	ld a, %11100000		; Wave Duty (tone) and Sound Length (higher = shorter)
+	ld [rAUD1LEN], a	; no effect unless c=1 in rAUD2HIGH 
+	
+	ld a, %11111100	;%VVVVDNNN C1 Volume / Direction 0=down / envelope number
+	ld [rAUD1ENV], a	; (fade speed - higher is slower)
+	
+	ld a, 64			;%LLLLLLLL pitch L
+	ld [rAUD1LOW], a
+	
+	ld a, %10000100 ; %IC---HHH C1 Initial / Counter 1=stop / pitch H
+	ld [rAUD1HIGH], a
+	ret
+
 ; Copy bytes from one area to another
 ; @param de: Source
 ; @param hl: Destination
@@ -360,6 +416,7 @@ CheckAndHandleBrick:
 	inc hl ; sets hl to point at the tile to the right
 	ld [hl], BLANK_TILE
 	call IncreaseScorePackedBCD
+	call PlayBrickSound
 
 CheckAndHandleBrickRight:
 	cp a, BRICK_RIGHT
@@ -369,6 +426,7 @@ CheckAndHandleBrickRight:
 	dec hl ; sets hl to point at the tile to the left
 	ld [hl], BLANK_TILE
 	call IncreaseScorePackedBCD
+	call PlayBrickSound
 	ret
 
 UpdateKeys:
